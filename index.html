@@ -280,33 +280,6 @@
 
   .footer-note { text-align: center; margin-top: 12px; font-size: 10px; color: #6b5b4a; opacity: 0.5; letter-spacing: 2px; }
 
-  /* ============ 密码门 ============ */
-  .password-gate {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #1a1a2e;
-    background-image: radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.08) 0%, transparent 50%),
-                      radial-gradient(ellipse at 80% 80%, rgba(139,26,26,0.06) 0%, transparent 50%);
-    z-index: 9999; display: flex; align-items: center; justify-content: center;
-    flex-direction: column;
-  }
-  .password-gate .gate-box {
-    text-align: center;
-  }
-  .password-gate .gate-icon { font-size: 64px; margin-bottom: 12px; }
-  .password-gate .gate-title { font-size: 28px; color: #C9A84C; letter-spacing: 4px; margin-bottom: 8px; }
-  .password-gate .gate-subtitle { font-size: 13px; color: #8b7355; margin-bottom: 24px; letter-spacing: 2px; }
-  .password-gate .gate-input {
-    display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;
-  }
-  .password-gate .gate-digit {
-    width: 48px; height: 56px; text-align: center; font-size: 24px;
-    border: 2px solid #c9a84c; border-radius: 8px; background: rgba(255,255,255,0.1);
-    color: #C9A84C; font-family: inherit; outline: none;
-  }
-  .password-gate .gate-digit:focus { border-color: #E8B44F; box-shadow: 0 0 12px rgba(201,168,76,0.3); }
-  .password-gate .gate-error { color: #c0392b; font-size: 12px; margin-top: 8px; display: none; }
-  .password-gate .gate-hint { color: #6b5b4a; font-size: 11px; margin-top: 16px; letter-spacing: 1px; }
-
   @media (max-width: 800px) {
     .two-col { flex-direction: column; }
     .col-right { width: 100%; }
@@ -317,24 +290,6 @@
 </style>
 </head>
 <body>
-
-<!-- 密码门 -->
-<div class="password-gate" id="passwordGate">
-  <div class="gate-box">
-    <div class="gate-icon">🏯</div>
-    <div class="gate-title">三国冷知识</div>
-    <div class="gate-subtitle">请输入密码进入</div>
-    <div class="gate-input" id="gateInputs">
-      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,0)" onkeydown="gateKeyDown(event,0)">
-      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,1)" onkeydown="gateKeyDown(event,1)">
-      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,2)" onkeydown="gateKeyDown(event,2)">
-      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,3)" onkeydown="gateKeyDown(event,3)">
-      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,4)" onkeydown="gateKeyDown(event,4)">
-      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,5)" onkeydown="gateKeyDown(event,5)">
-    </div>
-    <div class="gate-error" id="gateError">密码错误，请重试</div>
-  </div>
-</div>
 
 <div class="privacy-badge" id="privacyBadge" style="display:none;" onclick="reopenPrivacy()" title="点击修改数据保留设置"></div>
 
@@ -402,48 +357,6 @@
 <script src="questions-history.js"></script>
 <script src="questions-history-extra.js"></script>
 <script>
-// ==================== 密码门 ====================
-const GATE_PASSWORD = '260512';
-
-function gateInput(el, idx) {
-  // 只允许数字
-  el.value = el.value.replace(/[^0-9]/g, '');
-  if (el.value.length === 1 && idx < 5) {
-    const next = document.querySelectorAll('.gate-digit')[idx + 1];
-    if (next) next.focus();
-  }
-  // 检查是否输满6位
-  checkPassword();
-}
-
-function gateKeyDown(event, idx) {
-  if (event.key === 'Backspace' && idx > 0 && !event.target.value) {
-    const prev = document.querySelectorAll('.gate-digit')[idx - 1];
-    if (prev) prev.focus();
-  }
-}
-
-function checkPassword() {
-  const digits = document.querySelectorAll('.gate-digit');
-  let entered = '';
-  digits.forEach(d => entered += d.value);
-  if (entered.length === 6) {
-    if (entered === GATE_PASSWORD) {
-      document.getElementById('passwordGate').style.display = 'none';
-    } else {
-      document.getElementById('gateError').style.display = 'block';
-      setTimeout(() => {
-        digits.forEach(d => d.value = '');
-        digits[0].focus();
-        document.getElementById('gateError').style.display = 'none';
-      }, 800);
-    }
-  }
-}
-
-// 聚焦第一个输入框
-document.querySelectorAll('.gate-digit')[0].focus();
-
 // ==================== 游戏状态 ====================
 let state = {
   phase: 'modeSelect',   // 'modeSelect' | 'playing' | 'result'
