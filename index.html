@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三国冷知识 · 军师挑战</title>
+<style>
+  :root {
+    --gold: #C9A84C; --red: #8B1A1A; --dark: #1a1a2e;
+    --parchment: #f5e6c8; --ink: #2c1810; --correct: #4a9c5d; --wrong: #c0392b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'STSong', 'Songti SC', 'Noto Serif SC', 'SimSun', 'KaiTi', serif;
+    background: #1a1a2e;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.08) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(139,26,26,0.06) 0%, transparent 50%);
+    min-height: 100vh; padding: 12px;
+  }
+  body.mode-novel {
+    background: #1a0a0a;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(200,50,30,0.10) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(232,180,79,0.05) 0%, transparent 50%);
+  }
+  body.mode-history {
+    background: #0a1a2e;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(44,95,124,0.10) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(107,181,201,0.05) 0%, transparent 50%);
+  }
+
+  .app { max-width: 1100px; margin: 0 auto; }
+
+  .header-ornament { text-align: center; margin-bottom: 2px; color: var(--gold); font-size: 10px; letter-spacing: 6px; opacity: 0.6; }
+  .title-area { text-align: center; margin-bottom: 12px; }
+  .title { font-size: clamp(22px, 3.5vw, 32px); color: var(--gold); letter-spacing: 4px; text-shadow: 0 0 30px rgba(201,168,76,0.3); }
+  .subtitle { font-size: 12px; color: #8b7355; letter-spacing: 3px; margin-top: 2px; }
+
+  /* ============ 双栏布局 ============ */
+  .two-col { display: flex; gap: 14px; align-items: flex-start; }
+  .col-left { flex: 1; min-width: 0; }
+  .col-right { width: 280px; flex-shrink: 0; }
+
+  .panel {
+    background: linear-gradient(180deg, rgba(245,230,200,0.95), rgba(240,225,190,0.92));
+    border: 2px solid #c9a84c; border-radius: 10px; padding: 22px 20px;
+    position: relative; box-shadow: 0 3px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    min-height: 360px;
+  }
+  .panel-right {
+    background: linear-gradient(180deg, rgba(245,230,200,0.95), rgba(240,225,190,0.92));
+    border: 2px solid #c9a84c; border-radius: 10px; padding: 16px 14px;
+    box-shadow: 0 3px 20px rgba(0,0,0,0.4); max-height: 80vh; overflow-y: auto;
+  }
+
+  .mode-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 14px; letter-spacing: 1px; }
+  .mode-badge.novel { background: #8B1A1A; color: #f5e6c8; }
+  .mode-badge.history { background: #2c5f7c; color: #e8f4f8; }
+
+  .diff-badge { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; padding: 2px 8px; border-radius: 14px; letter-spacing: 1px; margin-left: 4px; }
+  .diff-badge.beginner { background: #4a9c5d; color: #fff; }
+  .diff-badge.intermediate { background: #C97A2E; color: #fff; }
+  .diff-badge.hell { background: #8B1A1A; color: #f5e6c8; }
+
+  .progress-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 10px; }
+  .progress-bar { flex: 1; height: 5px; background: #d4c5a9; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #8B1A1A, #c0392b); border-radius: 3px; transition: width 0.4s ease; }
+  .progress-text { font-size: 12px; color: #6b5b4a; white-space: nowrap; }
+
+  .category-tag { display: inline-block; font-size: 10px; padding: 3px 10px; border-radius: 14px; letter-spacing: 1px; margin-bottom: 12px; background: #8B1A1A; color: #f5e6c8; }
+  .category-tag.military { background: #8B1A1A; }
+  .category-tag.people { background: #5B3A6B; }
+  .category-tag.culture { background: #3D6B56; }
+  .category-tag.strange { background: #C97A2E; }
+
+  .question-number { font-size: 11px; color: #8b7355; letter-spacing: 1px; margin-bottom: 6px; }
+  .question-text { font-size: clamp(16px, 2.5vw, 18px); color: var(--ink); line-height: 1.6; margin-bottom: 20px; font-weight: bold; }
+
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px;
+    border: 1.5px solid #c9a84c; border-radius: 8px; background: rgba(255,255,255,0.5);
+    cursor: pointer; font-size: 14px; font-family: inherit; color: var(--ink);
+    transition: all 0.2s; text-align: left;
+  }
+  .option-btn:hover { background: rgba(201,168,76,0.12); border-color: #8B1A1A; }
+  .option-btn.selected { background: rgba(201,168,76,0.2); border-color: #C9A84C; border-width: 2px; }
+  .option-btn .option-letter {
+    width: 28px; height: 28px; border-radius: 50%; background: #f5e6c8;
+    border: 1.5px solid #c9a84c; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 13px; flex-shrink: 0; color: #8b7355;
+  }
+  .option-btn.correct { background: #d4edda !important; border-color: #4a9c5d !important; }
+  .option-btn.correct .option-letter { background: #4a9c5d; color: white; border-color: #4a9c5d; }
+  .option-btn.wrong { background: #f8d7da !important; border-color: #c0392b !important; }
+  .option-btn.wrong .option-letter { background: #c0392b; color: white; border-color: #c0392b; }
+  .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+  .option-btn.disabled:not(.correct):not(.wrong) { opacity: 0.5; }
+
+  .confirm-wrap { margin-top: 16px; text-align: center; }
+  .confirm-btn {
+    padding: 12px 48px; border: none; border-radius: 6px; font-size: 16px;
+    font-family: inherit; letter-spacing: 3px; cursor: pointer; transition: all 0.3s;
+    background: #ccc; color: #999;
+  }
+  .confirm-btn.active { background: linear-gradient(180deg, #4a9c5d, #3a7c4d); color: white; cursor: pointer; }
+  .confirm-btn.active:hover { box-shadow: 0 0 16px rgba(74,156,93,0.4); }
+
+  .reveal-box {
+    margin-top: 16px; padding: 14px 18px; background: rgba(139,26,26,0.06);
+    border-left: 3px solid #8B1A1A; border-radius: 0 8px 8px 0; display: none;
+  }
+  .reveal-box.show { display: block; }
+  .reveal-box .reveal-label { font-size: 11px; color: #8B1A1A; letter-spacing: 2px; margin-bottom: 4px; font-weight: bold; }
+  .reveal-box .reveal-content { font-size: 13px; color: #4a3728; line-height: 1.6; }
+
+  .next-btn {
+    display: none; margin: 14px auto 0; padding: 11px 32px;
+    background: linear-gradient(180deg, #8B1A1A, #6B1010); color: #f5e6c8;
+    border: 1px solid #c9a84c; border-radius: 6px; font-size: 14px;
+    font-family: inherit; letter-spacing: 3px; cursor: pointer;
+  }
+  .next-btn.show { display: block; }
+
+  /* ============ 题号网格 ============ */
+  .grid-title { text-align: center; font-size: 13px; color: #8b7355; letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; }
+  .grid-stats { text-align: center; font-size: 11px; color: #6b5b4a; margin-bottom: 8px; }
+  .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .q-cell {
+    aspect-ratio: 1; border: 1px solid #c9a84c; border-radius: 4px;
+    background: rgba(255,255,255,0.4); cursor: pointer; font-size: 10px;
+    font-family: inherit; color: var(--ink); display: flex; align-items: center;
+    justify-content: center; transition: all 0.15s; position: relative; min-width: 0;
+  }
+  .q-cell:hover { background: rgba(201,168,76,0.2); border-color: #8B1A1A; transform: scale(1.05); }
+  .q-cell.current { background: #C9A84C !important; color: #1a1a2e !important; border-color: #8B1A1A !important; font-weight: bold; }
+  .q-cell.correct-cell { background: #d4edda; border-color: #4a9c5d; color: #2d6a3f; }
+  .q-cell.correct-cell::after { content: '✓'; position: absolute; top: 1px; right: 3px; font-size: 7px; color: #4a9c5d; }
+  .q-cell.wrong-cell { background: #f8d7da; border-color: #c0392b; color: #a02828; }
+  .q-cell.wrong-cell::after { content: '✗'; position: absolute; top: 1px; right: 3px; font-size: 7px; color: #c0392b; }
+
+  .clear-btn {
+    display: block; width: 100%; margin-top: 8px; padding: 6px;
+    background: none; border: 1px dashed #c0392b; color: #c0392b;
+    border-radius: 4px; font-size: 10px; font-family: inherit; cursor: pointer; letter-spacing: 1px;
+  }
+  .clear-btn:hover { background: rgba(192,57,43,0.08); border-style: solid; }
+
+  .exit-btn {
+    background: none; border: 1px solid #c9a84c; color: #8b7355;
+    padding: 6px 14px; border-radius: 4px; font-family: inherit;
+    font-size: 11px; cursor: pointer; letter-spacing: 1px;
+  }
+  .exit-btn:hover { background: rgba(201,168,76,0.1); }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
+
+  .result-screen { text-align: center; padding: 10px 0; }
+  .result-rank { font-size: 60px; margin-bottom: 8px; }
+  .result-title { font-size: 24px; color: #8B1A1A; letter-spacing: 3px; font-weight: bold; margin-bottom: 4px; }
+  .result-score { font-size: 48px; color: #C9A84C; font-weight: bold; margin: 12px 0; }
+  .result-detail { color: #6b5b4a; font-size: 14px; line-height: 1.8; margin-bottom: 16px; }
+  .result-advice { padding: 16px; background: rgba(139,26,26,0.05); border-radius: 8px; font-size: 14px; color: #4a3728; line-height: 1.7; margin-bottom: 20px; }
+  .replay-btn {
+    padding: 14px 48px; background: linear-gradient(180deg, #8B1A1A, #6B1010); color: #f5e6c8;
+    border: 1px solid #c9a84c; border-radius: 6px; font-size: 16px; font-family: inherit;
+    letter-spacing: 3px; cursor: pointer;
+  }
+  .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ============ 模式选择页 ============ */
+  .mode-select-screen { text-align: center; padding: 10px 0; }
+  .mode-select-screen .mode-icon { font-size: 52px; margin-bottom: 12px; }
+  .mode-select-screen .mode-desc { color: #6b5b4a; font-size: 14px; line-height: 1.8; margin-bottom: 24px; }
+  .mode-cards { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .mode-card {
+    flex: 1; min-width: 200px; max-width: 260px; padding: 24px 18px;
+    border: 2px solid #c9a84c; border-radius: 12px; cursor: pointer; transition: all 0.3s;
+    text-align: center; background: rgba(255,255,255,0.4);
+  }
+  .mode-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+  .mode-card.novel-card:hover { border-color: #8B1A1A; background: rgba(139,26,26,0.06); }
+  .mode-card.history-card:hover { border-color: #2c5f7c; background: rgba(44,95,124,0.06); }
+  .mode-card .card-icon { font-size: 40px; margin-bottom: 8px; }
+  .mode-card .card-title { font-size: 18px; font-weight: bold; color: var(--ink); margin-bottom: 6px; letter-spacing: 2px; }
+  .mode-card .card-subtitle { font-size: 12px; color: #8b7355; line-height: 1.6; }
+  .mode-card .card-tag { display: inline-block; font-size: 10px; padding: 3px 10px; border-radius: 12px; margin-top: 8px; letter-spacing: 1px; }
+  .mode-card .card-tag.novel { background: #8B1A1A; color: #f5e6c8; }
+  .mode-card .card-tag.history { background: #2c5f7c; color: #e8f4f8; }
+
+  /* ============ 难度选择弹窗 ============ */
+  .overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: transparent; z-index: 100;
+    justify-content: center; align-items: center;
+    pointer-events: none;
+  }
+  .overlay.show { display: flex; }
+  .overlay .diff-modal { pointer-events: auto; }
+  /* 难度弹窗弹出时面板变暗 */
+  .panel.dimmed, .panel-right.dimmed {
+    filter: brightness(0.4);
+    transition: filter 0.3s;
+  }
+
+  .diff-modal {
+    background: linear-gradient(180deg, rgba(245,230,200,0.98), rgba(240,225,190,0.95));
+    border: 2px solid #c9a84c; border-radius: 16px; padding: 32px 28px;
+    text-align: center; max-width: 520px; width: 90%;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+    animation: popIn 0.3s ease-out;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .diff-modal .modal-title {
+    font-size: 20px; color: #2c1810; font-weight: bold; letter-spacing: 3px; margin-bottom: 6px;
+  }
+  .diff-modal .modal-subtitle { font-size: 12px; color: #8b7355; margin-bottom: 24px; }
+  /* ============ 隐私弹窗 ============ */
+  .privacy-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); z-index: 200;
+    justify-content: center; align-items: center;
+  }
+  .privacy-overlay.show { display: flex; }
+
+  .privacy-modal {
+    background: linear-gradient(180deg, rgba(245,230,200,0.98), rgba(240,225,190,0.95));
+    border: 2px solid #c9a84c; border-radius: 16px; padding: 32px 28px;
+    text-align: center; max-width: 420px; width: 90%;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+    animation: popIn 0.3s ease-out;
+  }
+  .privacy-modal .pm-title {
+    font-size: 20px; color: #2c1810; font-weight: bold; letter-spacing: 2px; margin-bottom: 12px;
+  }
+  .privacy-modal .pm-desc {
+    font-size: 13px; color: #6b5b4a; line-height: 1.8; margin-bottom: 24px;
+  }
+  .privacy-btns { display: flex; gap: 16px; justify-content: center; }
+  .privacy-keep-btn, .privacy-nokeep-btn {
+    padding: 14px 36px; border: 2px solid #c9a84c; border-radius: 8px; font-size: 15px;
+    font-family: inherit; letter-spacing: 2px; cursor: pointer; transition: all 0.2s;
+    background: rgba(255,255,255,0.5); color: var(--ink); font-weight: bold;
+  }
+  .privacy-keep-btn:hover { background: #d4edda; border-color: #4a9c5d; }
+  .privacy-nokeep-btn:hover { background: #f8d7da; border-color: #c0392b; }
+
+  /* ============ 右上角隐私角标 ============ */
+  .privacy-badge {
+    position: fixed; top: 10px; right: 14px; z-index: 150;
+    font-size: 10px; padding: 5px 10px; border-radius: 10px;
+    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    border: 1px solid #c9a84c; font-family: inherit;
+  }
+  .privacy-badge.keep { background: #d4edda; color: #2d6a3f; border-color: #4a9c5d; }
+  .privacy-badge.nokeep { background: #f8d7da; color: #a02828; border-color: #c0392b; }
+  .privacy-badge:hover { transform: scale(1.05); }
+
+  .diff-modal .modal-close {
+    position: absolute; top: 12px; right: 16px; background: none; border: none;
+    font-size: 20px; cursor: pointer; color: #8b7355;
+  }
+
+  .diff-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  .diff-card {
+    flex: 1; min-width: 110px; max-width: 140px; padding: 20px 14px;
+    border: 2px solid #c9a84c; border-radius: 12px; cursor: pointer; transition: all 0.3s;
+    text-align: center; background: rgba(255,255,255,0.3);
+  }
+  .diff-card:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+  .diff-card.beginner-card:hover { border-color: #4a9c5d; background: rgba(74,156,93,0.08); }
+  .diff-card.intermediate-card:hover { border-color: #C97A2E; background: rgba(201,122,46,0.08); }
+  .diff-card.hell-card:hover { border-color: #8B1A1A; background: rgba(139,26,26,0.06); }
+  .diff-card .diff-icon { font-size: 36px; margin-bottom: 6px; }
+  .diff-card .diff-name { font-size: 16px; font-weight: bold; color: #2c1810; letter-spacing: 2px; margin-bottom: 4px; }
+  .diff-card .diff-desc { font-size: 10px; color: #8b7355; line-height: 1.5; }
+
+  .footer-note { text-align: center; margin-top: 12px; font-size: 10px; color: #6b5b4a; opacity: 0.5; letter-spacing: 2px; }
+
+  /* ============ 密码门 ============ */
+  .password-gate {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #1a1a2e;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.08) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(139,26,26,0.06) 0%, transparent 50%);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .password-gate .gate-box {
+    text-align: center;
+  }
+  .password-gate .gate-icon { font-size: 64px; margin-bottom: 12px; }
+  .password-gate .gate-title { font-size: 28px; color: #C9A84C; letter-spacing: 4px; margin-bottom: 8px; }
+  .password-gate .gate-subtitle { font-size: 13px; color: #8b7355; margin-bottom: 24px; letter-spacing: 2px; }
+  .password-gate .gate-input {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;
+  }
+  .password-gate .gate-digit {
+    width: 48px; height: 56px; text-align: center; font-size: 24px;
+    border: 2px solid #c9a84c; border-radius: 8px; background: rgba(255,255,255,0.1);
+    color: #C9A84C; font-family: inherit; outline: none;
+  }
+  .password-gate .gate-digit:focus { border-color: #E8B44F; box-shadow: 0 0 12px rgba(201,168,76,0.3); }
+  .password-gate .gate-error { color: #c0392b; font-size: 12px; margin-top: 8px; display: none; }
+  .password-gate .gate-hint { color: #6b5b4a; font-size: 11px; margin-top: 16px; letter-spacing: 1px; }
+
+  @media (max-width: 800px) {
+    .two-col { flex-direction: column; }
+    .col-right { width: 100%; }
+    .panel-right { max-height: none; }
+    .diff-row { flex-direction: column; align-items: center; }
+    .diff-card { max-width: 100%; min-width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 密码门 -->
+<div class="password-gate" id="passwordGate">
+  <div class="gate-box">
+    <div class="gate-icon">🏯</div>
+    <div class="gate-title">三国冷知识</div>
+    <div class="gate-subtitle">请输入密码进入</div>
+    <div class="gate-input" id="gateInputs">
+      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,0)" onkeydown="gateKeyDown(event,0)">
+      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,1)" onkeydown="gateKeyDown(event,1)">
+      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,2)" onkeydown="gateKeyDown(event,2)">
+      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,3)" onkeydown="gateKeyDown(event,3)">
+      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,4)" onkeydown="gateKeyDown(event,4)">
+      <input type="tel" class="gate-digit" maxlength="1" oninput="gateInput(this,5)" onkeydown="gateKeyDown(event,5)">
+    </div>
+    <div class="gate-error" id="gateError">密码错误，请重试</div>
+  </div>
+</div>
+
+<div class="privacy-badge" id="privacyBadge" style="display:none;" onclick="reopenPrivacy()" title="点击修改数据保留设置"></div>
+
+<!-- 隐私设置弹窗 -->
+<div class="privacy-overlay" id="privacyOverlay">
+  <div class="privacy-modal">
+    <div class="pm-title">🔒 数据隐私设置</div>
+    <div class="pm-desc">关闭网页后，是否保留你的答题记录？<br><br>选择<strong>保留</strong>：下次打开时之前的作答进度还在<br>选择<strong>不保留</strong>：关闭网页后所有数据自动清除</div>
+    <div class="privacy-btns">
+      <button class="privacy-keep-btn" onclick="setPrivacy(true)">🟢 保留</button>
+      <button class="privacy-nokeep-btn" onclick="setPrivacy(false)">🔴 不保留</button>
+    </div>
+  </div>
+</div>
+
+<!-- 右上角隐私角标 -->
+<div class="overlay" id="diffOverlay">
+  <div class="diff-modal">
+    <div class="modal-title" id="modalTitle">选择难度</div>
+    <div class="modal-subtitle" id="modalSubtitle"></div>
+    <div class="diff-row">
+      <div class="diff-card beginner-card" onclick="selectDifficulty('beginner')">
+        <div class="diff-icon">🌱</div>
+        <div class="diff-name">入门</div>
+        <div class="diff-desc">基础知识点<br>适合初次挑战</div>
+      </div>
+      <div class="diff-card intermediate-card" onclick="selectDifficulty('intermediate')">
+        <div class="diff-icon">⚡</div>
+        <div class="diff-name">中级</div>
+        <div class="diff-desc">稍有难度<br>适合三国爱好者</div>
+      </div>
+      <div class="diff-card hell-card" onclick="selectDifficulty('hell')">
+        <div class="diff-icon">💀</div>
+        <div class="diff-name">地狱</div>
+        <div class="diff-desc">极端冷知识<br>真正的军师试炼</div>
+      </div>
+    </div>
+    <div style="margin-top:18px;">
+      <button style="background:none;border:1px solid #c9a84c;color:#8b7355;padding:8px 24px;border-radius:4px;font-family:inherit;font-size:12px;cursor:pointer;letter-spacing:1px;" onclick="closeDiffModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <div class="header-ornament">◆ ◇ ◆</div>
+  <div class="title-area">
+    <div class="title">三国冷知识</div>
+    <div class="subtitle" id="subtitleText">军 师 挑 战</div>
+  </div>
+
+  <div class="two-col" id="twoCol">
+    <div class="col-left">
+      <div class="panel" id="panel"></div>
+    </div>
+    <div class="col-right" id="colRight">
+      <div class="panel-right" id="panelRight"></div>
+    </div>
+  </div>
+
+  <div class="footer-note">爸爸出品 · 兄弟对战 · AI题库</div>
+</div>
+
+<script src="questions-novel.js"></script>
+<script src="questions-novel-extra.js"></script>
+<script src="questions-history.js"></script>
+<script src="questions-history-extra.js"></script>
+<script>
+// ==================== 密码门 ====================
+const GATE_PASSWORD = '260512';
+
+function gateInput(el, idx) {
+  // 只允许数字
+  el.value = el.value.replace(/[^0-9]/g, '');
+  if (el.value.length === 1 && idx < 5) {
+    const next = document.querySelectorAll('.gate-digit')[idx + 1];
+    if (next) next.focus();
+  }
+  // 检查是否输满6位
+  checkPassword();
+}
+
+function gateKeyDown(event, idx) {
+  if (event.key === 'Backspace' && idx > 0 && !event.target.value) {
+    const prev = document.querySelectorAll('.gate-digit')[idx - 1];
+    if (prev) prev.focus();
+  }
+}
+
+function checkPassword() {
+  const digits = document.querySelectorAll('.gate-digit');
+  let entered = '';
+  digits.forEach(d => entered += d.value);
+  if (entered.length === 6) {
+    if (entered === GATE_PASSWORD) {
+      document.getElementById('passwordGate').style.display = 'none';
+    } else {
+      document.getElementById('gateError').style.display = 'block';
+      setTimeout(() => {
+        digits.forEach(d => d.value = '');
+        digits[0].focus();
+        document.getElementById('gateError').style.display = 'none';
+      }, 800);
+    }
+  }
+}
+
+// 聚焦第一个输入框
+document.querySelectorAll('.gate-digit')[0].focus();
+
+// ==================== 游戏状态 ====================
+let state = {
+  phase: 'modeSelect',   // 'modeSelect' | 'playing' | 'result'
+  mode: null,            // 'novel' | 'history'
+  difficulty: null,      // 'beginner' | 'intermediate' | 'hell'
+  questions: [],         // 当前难度下的题目（按原始顺序，含 _origIndex）
+  currentIndex: 0,
+  selectedAnswer: -1,
+  answered: false,
+  score: 0,
+  answeredSet: {},       // { mode: { origIndex: 'correct'|'wrong' } }
+  keepData: null,        // null=未选, true=保留, false=不保留
+};
+
+const DIFF_LABELS = { beginner: '入门', intermediate: '中级', hell: '地狱' };
+const DIFF_RANGES = { beginner: [0, 50], intermediate: [50, 100], hell: [100, 150] };
+
+// ==================== localStorage ====================
+const STORAGE_KEY = 'sanguo_progress_v2';
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state.answeredSet = JSON.parse(raw);
+  } catch(e) { state.answeredSet = {}; }
+  if (!state.answeredSet) state.answeredSet = {};
+  if (!state.answeredSet.novel) state.answeredSet.novel = {};
+  if (!state.answeredSet.history) state.answeredSet.history = {};
+}
+
+function saveProgress() {
+  if (!state.keepData) return; // 不保留则不存
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.answeredSet)); } catch(e) {}
+}
+
+// ==================== 隐私设置 ====================
+const PRIVACY_KEY = 'sanguo_privacy';
+
+function loadPrivacy() {
+  try {
+    const v = localStorage.getItem(PRIVACY_KEY);
+    if (v === 'keep') return true;
+    if (v === 'nokeep') return false;
+  } catch(e) {}
+  return null; // 未设置过
+}
+
+function setPrivacy(keep) {
+  localStorage.setItem(PRIVACY_KEY, keep ? 'keep' : 'nokeep');
+  state.keepData = keep;
+  document.getElementById('privacyOverlay').classList.remove('show');
+  updatePrivacyBadge();
+  if (keep) {
+    // 选择保留则加载已有数据
+    loadProgress();
+  } else {
+    // 选择不保留则清除所有数据
+    clearAllData();
+  }
+}
+
+function clearAllData() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  state.answeredSet = { novel: {}, history: {} };
+}
+
+function updatePrivacyBadge() {
+  const badge = document.getElementById('privacyBadge');
+  if (state.keepData === true) {
+    badge.style.display = 'block';
+    badge.className = 'privacy-badge keep';
+    badge.textContent = '🟢 保留';
+  } else if (state.keepData === false) {
+    badge.style.display = 'block';
+    badge.className = 'privacy-badge nokeep';
+    badge.textContent = '🔴 不保留';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function reopenPrivacy() {
+  document.getElementById('privacyOverlay').classList.add('show');
+}
+
+function getModeKey() { return state.mode; }
+
+function isAnswered(origIndex) {
+  const mk = getModeKey();
+  if (!mk) return false;
+  return !!state.answeredSet[mk]?.[origIndex];
+}
+
+function getAnswerStatus(origIndex) {
+  const mk = getModeKey();
+  if (!mk) return null;
+  return state.answeredSet[mk]?.[origIndex] || null;
+}
+
+function markAnswered(origIndex, wasCorrect) {
+  const mk = getModeKey();
+  if (!mk) return;
+  if (!state.answeredSet[mk]) state.answeredSet[mk] = {};
+  state.answeredSet[mk][origIndex] = wasCorrect ? 'correct' : 'wrong';
+  saveProgress();
+}
+
+function clearModeProgress(mode) {
+  state.answeredSet[mode] = {};
+  saveProgress();
+}
+
+function clearDifficultyProgress(mode, difficulty) {
+  const range = DIFF_RANGES[difficulty];
+  if (!range || !state.answeredSet[mode]) return;
+  for (let i = range[0]; i < range[1]; i++) {
+    delete state.answeredSet[mode][i];
+  }
+  saveProgress();
+}
+
+function getAnsweredCountInDifficulty() {
+  const mk = getModeKey();
+  if (!mk || !state.difficulty) return 0;
+  const range = DIFF_RANGES[state.difficulty];
+  if (!range) return 0;
+  let count = 0;
+  for (let i = range[0]; i < range[1]; i++) {
+    if (state.answeredSet[mk]?.[i]) count++;
+  }
+  return count;
+}
+
+// ==================== 题库 ====================
+function currentBank() {
+  return state.mode === 'novel' ? window.NOVEL_BANK : window.HISTORY_BANK;
+}
+
+// 构建当前难度的题目列表（按原始顺序，不随机）
+function buildQuestionList() {
+  const bank = currentBank();
+  const range = DIFF_RANGES[state.difficulty];
+  if (!range) return [];
+
+  const questions = [];
+  const end = Math.min(range[1], bank.length);
+  for (let i = range[0]; i < end; i++) {
+    questions.push({ ...bank[i], _origIndex: i });
+  }
+  return questions; // 保持原始顺序
+}
+
+// 获取军衔
+function getRank(score, total) {
+  const pct = total > 0 ? score / total : 0;
+  if (state.mode === 'novel') {
+    if (pct >= 0.9) return { emoji: '🐉', title: '演义通', desc: '你对《三国演义》了如指掌！罗贯中来了都得夸你。' };
+    if (pct >= 0.8) return { emoji: '🦅', title: '说书先生', desc: '茶馆里的说书先生也就这个水平了。' };
+    if (pct >= 0.7) return { emoji: '🐯', title: '五虎上将', desc: '小说里的名场面你基本都记得。' };
+    if (pct >= 0.6) return { emoji: '🐴', title: '帐前听令', desc: '还得再翻翻《三国演义》。' };
+    if (pct >= 0.4) return { emoji: '🛡️', title: '新兵入伍', desc: '回去把三国电视剧补一补！' };
+    return { emoji: '🌱', title: '白身', desc: '翻开《三国演义》第一回吧！' };
+  } else {
+    if (pct >= 0.9) return { emoji: '🐉', title: '史学大家', desc: '你读的是《三国志》不是《三国演义》，佩服！' };
+    if (pct >= 0.8) return { emoji: '🦅', title: '考据达人', desc: '小说和正史的区别你门儿清。' };
+    if (pct >= 0.7) return { emoji: '🐯', title: '明辨真伪', desc: '基本能分清演义和正史了。' };
+    if (pct >= 0.6) return { emoji: '🐴', title: '初窥门径', desc: '正史和小说不一样，很颠覆吧？' };
+    if (pct >= 0.4) return { emoji: '🛡️', title: '演义中毒', desc: '《三国演义》看多了，正史完全不一样！' };
+    return { emoji: '🌱', title: '求学之道', desc: '先看《三国演义》，再来挑战正史版。' };
+  }
+}
+
+function updateBodyClass() {
+  document.body.classList.remove('mode-novel', 'mode-history');
+  if (state.mode === 'novel') document.body.classList.add('mode-novel');
+  if (state.mode === 'history') document.body.classList.add('mode-history');
+}
+
+// ==================== 难度弹窗 ====================
+function openDiffModal(mode) {
+  document.getElementById('modalTitle').textContent = mode === 'novel' ? '⚔️ 演义小说版 · 选择难度' : '🏛️ 正史三国志版 · 选择难度';
+  document.getElementById('modalSubtitle').textContent = mode === 'novel' ? '每级 50 题，共 150 题' : '每级 50 题，共 150 题';
+  document.getElementById('diffOverlay').classList.add('show');
+  document.getElementById('panel').classList.add('dimmed');
+  document.getElementById('panelRight').classList.add('dimmed');
+}
+
+function closeDiffModal() {
+  document.getElementById('diffOverlay').classList.remove('show');
+  document.getElementById('panel').classList.remove('dimmed');
+  document.getElementById('panelRight').classList.remove('dimmed');
+}
+
+function onVersionClick(mode) {
+  state.mode = mode;
+  updateBodyClass();
+  openDiffModal(mode);
+}
+
+function selectDifficulty(diff) {
+  closeDiffModal();
+  state.difficulty = diff;
+  document.getElementById('subtitleText').textContent =
+    (state.mode === 'novel' ? '演 义 · 小 说 版' : '正 史 · 三 国 志 版') + ' · ' + DIFF_LABELS[diff];
+
+  state.phase = 'playing';
+  state.questions = buildQuestionList();
+  state.currentIndex = 0;
+  state.score = 0;
+  state.answered = false;
+  state.selectedAnswer = -1;
+  document.getElementById('twoCol').style.display = 'flex';
+  document.getElementById('colRight').style.display = 'block';
+
+  if (state.questions.length === 0) { renderEmpty(); return; }
+
+  state.answered = !!isAnswered(state.questions[0]._origIndex);
+  renderQuestion();
+  renderGrid();
+  document.getElementById('panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ==================== 渲染：右侧题号网格 ====================
+function renderGrid() {
+  const right = document.getElementById('panelRight');
+  if (!state.mode || !state.difficulty || state.phase === 'modeSelect') {
+    right.innerHTML = '<div style="text-align:center;color:#8b7355;padding:20px;font-size:13px;">选择版本和难度后<br>题目索引出现在这里</div>';
+    return;
+  }
+
+  const answered = getAnsweredCountInDifficulty();
+  const total = state.questions.length;
+  const currentQ = state.questions[state.currentIndex];
+  const currentOrigIdx = currentQ ? currentQ._origIndex : -1;
+
+  let html = '<div class="grid-title">📋 ' + DIFF_LABELS[state.difficulty] + ' · 题目索引</div>';
+  html += '<div class="grid-stats">已答 <strong>' + answered + '</strong> / ' + total + ' 题</div>';
+  html += '<div class="q-grid">';
+
+  for (let i = 0; i < total; i++) {
+    const q = state.questions[i];
+    const status = getAnswerStatus(q._origIndex);
+    const done = !!status;
+    let cls = 'q-cell';
+    if (q._origIndex === currentOrigIdx) cls += ' current';
+    if (status === 'correct') cls += ' correct-cell';
+    if (status === 'wrong') cls += ' wrong-cell';
+    const num = i + 1;
+    html += '<button class="' + cls + '" onclick="jumpToQuestion(' + i + ')" title="第' + num + '题' + (done ? ' (' + (status === 'correct' ? '对' : '错') + ')' : '') + '">' + num + '</button>';
+  }
+
+  html += '</div>';
+  html += '<button class="clear-btn" onclick="resetCurrentProgress()">🗑 清空当前难度作答记录</button>';
+  right.innerHTML = html;
+}
+
+function jumpToQuestion(idx) {
+  if (idx < 0 || idx >= state.questions.length) return;
+  state.currentIndex = idx;
+  state.answered = !!isAnswered(state.questions[idx]._origIndex);
+  state.selectedAnswer = -1;
+  renderQuestion();
+  renderGrid();
+  document.getElementById('panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetCurrentProgress() {
+  if (confirm('确定要清空当前版本 · 当前难度（' + DIFF_LABELS[state.difficulty] + '）的所有作答记录吗？')) {
+    clearDifficultyProgress(state.mode, state.difficulty);
+    state.questions = buildQuestionList();
+    state.currentIndex = 0;
+    state.score = 0;
+    state.answered = false;
+    state.selectedAnswer = -1;
+    renderQuestion();
+    renderGrid();
+  }
+}
+
+// ==================== 渲染函数 ====================
+function renderModeSelect() {
+  state.mode = null;
+  state.difficulty = null;
+  updateBodyClass();
+  document.getElementById('subtitleText').textContent = '军 师 挑 战';
+  document.getElementById('twoCol').style.display = 'block';
+  document.getElementById('colRight').style.display = 'none';
+
+  const nLen = (window.NOVEL_BANK?.length || 0);
+  const hLen = (window.HISTORY_BANK?.length || 0);
+
+  document.getElementById('panel').innerHTML =
+    '<div class="mode-select-screen">' +
+    '<div class="mode-icon">📜</div>' +
+    '<div style="font-size:18px;color:#2c1810;font-weight:bold;margin-bottom:8px;">选择你的战场</div>' +
+    '<div class="mode-desc">同一个三国，两种打开方式<br><span style="color:#8B1A1A;">选版本 → 选难度 → 开始挑战</span></div>' +
+    '<div class="mode-cards">' +
+    '<div class="mode-card novel-card" onclick="onVersionClick(\'novel\')">' +
+    '<div class="card-icon">⚔️</div><div class="card-title">演义小说版</div>' +
+    '<div class="card-subtitle">考《三国演义》里的精彩故事<br>青龙偃月刀 · 空城计 · 草船借箭</div>' +
+    '<span class="card-tag novel">📖 ' + nLen + ' 题（入门50 + 中级50 + 地狱50）</span></div>' +
+    '<div class="mode-card history-card" onclick="onVersionClick(\'history\')">' +
+    '<div class="card-icon">🏛️</div><div class="card-title">正史三国志版</div>' +
+    '<div class="card-subtitle">揭穿小说虚构 · 还原真实历史<br>关羽没用过大刀 · 空城计是赵云的</div>' +
+    '<span class="card-tag history">📜 ' + hLen + ' 题（入门50 + 中级50 + 地狱50）</span></div>' +
+    '</div></div>';
+}
+
+function renderEmpty() {
+  document.getElementById('panel').innerHTML =
+    '<div style="text-align:center;padding:40px;">' +
+    '<div style="font-size:48px;">🎉</div>' +
+    '<div style="font-size:18px;color:#2c1810;margin:12px 0;">当前难度题目已全部作答完毕！</div>' +
+    '<button class="replay-btn" onclick="resetCurrentProgress()">🔄 清空记录重新挑战</button></div>';
+}
+
+function goToModeSelect() {
+  state.phase = 'modeSelect';
+  state.mode = null;
+  state.difficulty = null;
+  state.questions = [];
+  updateBodyClass();
+  document.getElementById('subtitleText').textContent = '军 师 挑 战';
+  document.getElementById('twoCol').style.display = 'block';
+  document.getElementById('colRight').style.display = 'none';
+  closeDiffModal();
+  renderModeSelect();
+  document.getElementById('panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderQuestion() {
+  if (state.questions.length === 0) { renderEmpty(); return; }
+
+  const q = state.questions[state.currentIndex];
+  const total = state.questions.length;
+  const progress = ((state.currentIndex) / total * 100).toFixed(0);
+  const modeLabel = state.mode === 'novel' ? '演义小说版' : '正史三国志版';
+  const modeIcon = state.mode === 'novel' ? '⚔️' : '🏛️';
+  const done = !!isAnswered(q._origIndex);
+  const prevStatus = getAnswerStatus(q._origIndex);
+  const catClass = { military: 'military', people: 'people', culture: 'culture', strange: 'strange' }[q.category] || 'military';
+
+  let optHtml = '';
+  for (let i = 0; i < q.options.length; i++) {
+    let cls = 'option-btn';
+    if (done) cls += ' disabled';
+    if (done && i === q.answer) cls += ' correct';
+    if (done && prevStatus === 'wrong' && !done) { /* no mark yet */ }
+    // 如果已答过，标记之前的选项
+    if (done && prevStatus === 'wrong' && i === q.answer) cls += ' correct';
+    if (!done && i === state.selectedAnswer) cls += ' selected';
+    optHtml += '<button class="' + cls + '" onclick="selectAnswer(' + i + ')" data-index="' + i + '">' +
+      '<span class="option-letter">' + 'ABCD'[i] + '</span><span>' + q.options[i] + '</span></button>';
+  }
+
+  const showConfirm = !done;
+
+  document.getElementById('panel').innerHTML =
+    '<div class="top-bar">' +
+    '<span><span class="mode-badge ' + state.mode + '">' + modeIcon + ' ' + modeLabel + '</span>' +
+    '<span class="diff-badge ' + state.difficulty + '">' + DIFF_LABELS[state.difficulty] + '</span></span>' +
+    '<button class="exit-btn" onclick="goToModeSelect()">⟵ 切换版本</button></div>' +
+    '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
+    '<div class="progress-text">' + (state.currentIndex + 1) + ' / ' + total + (done ? ' (已作答)' : '') + '</div></div>' +
+    '<span class="category-tag ' + catClass + '">' + q.categoryName + '</span>' +
+    '<div class="question-number">第 ' + (state.currentIndex + 1) + ' 题</div>' +
+    '<div class="question-text">' + q.question + '</div>' +
+    '<div class="options" id="optionsContainer">' + optHtml + '</div>' +
+    (showConfirm ? '<div class="confirm-wrap"><button class="confirm-btn' + (state.selectedAnswer >= 0 ? ' active' : '') + '" id="confirmBtn" onclick="confirmAnswer()"' + (state.selectedAnswer >= 0 ? '' : ' disabled') + '>' + (state.selectedAnswer >= 0 ? '✓ 确定答案' : '请先选择一个选项') + '</button></div>' : '') +
+    '<div class="reveal-box' + (done ? ' show' : '') + '" id="revealBox"><div class="reveal-label">📖 冷知识真相</div><div class="reveal-content">' + q.reveal + '</div></div>' +
+    '<button class="next-btn' + (done ? ' show' : '') + '" id="nextBtn" onclick="nextQuestion()">下一题 ▶</button>';
+
+  renderGrid();
+}
+
+function selectAnswer(index) {
+  if (state.answered) return;
+  state.selectedAnswer = index;
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach((b, i) => b.classList.toggle('selected', i === index));
+  const cb = document.getElementById('confirmBtn');
+  if (cb) { cb.classList.add('active'); cb.disabled = false; cb.textContent = '✓ 确定答案'; }
+}
+
+function confirmAnswer() {
+  if (state.answered || state.selectedAnswer < 0) return;
+  const q = state.questions[state.currentIndex];
+  const correct = q.answer;
+  const chosen = state.selectedAnswer;
+  const wasCorrect = (chosen === correct);
+
+  state.answered = true;
+  markAnswered(q._origIndex, wasCorrect);
+  if (wasCorrect) state.score++;
+
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach((b, i) => {
+    b.classList.add('disabled'); b.classList.remove('selected');
+    if (i === correct) b.classList.add('correct');
+    if (i === chosen && i !== correct) b.classList.add('wrong');
+  });
+
+  const cw = document.querySelector('.confirm-wrap');
+  if (cw) cw.style.display = 'none';
+  document.getElementById('revealBox').classList.add('show');
+  document.getElementById('nextBtn').classList.add('show');
+  document.getElementById('revealBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  renderGrid();
+  saveProgress();
+}
+
+function nextQuestion() {
+  const total = state.questions.length;
+  if (state.currentIndex < total - 1) {
+    state.currentIndex++;
+    state.answered = !!isAnswered(state.questions[state.currentIndex]._origIndex);
+    state.selectedAnswer = -1;
+    renderQuestion();
+    document.getElementById('panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    state.phase = 'result';
+    renderResult();
+  }
+}
+
+function renderResult() {
+  const total = state.questions.length;
+  const rank = getRank(state.score, total);
+  const pct = total > 0 ? Math.round(state.score / total * 100) : 0;
+  const modeLabel = state.mode === 'novel' ? '演义小说版' : '正史三国志版';
+  const otherDiff1 = state.difficulty === 'beginner' ? 'intermediate' : 'beginner';
+  const otherDiff2 = state.difficulty === 'hell' ? 'intermediate' : 'hell';
+
+  document.getElementById('panel').innerHTML =
+    '<div class="top-bar">' +
+    '<span><span class="mode-badge ' + state.mode + '">' + (state.mode === 'novel' ? '⚔️' : '🏛️') + ' ' + modeLabel + '</span>' +
+    '<span class="diff-badge ' + state.difficulty + '">' + DIFF_LABELS[state.difficulty] + '</span></span>' +
+    '<button class="exit-btn" onclick="goToModeSelect()">⟵ 切换版本</button></div>' +
+    '<div class="result-screen">' +
+    '<div class="result-rank">' + rank.emoji + '</div>' +
+    '<div class="result-title">' + rank.title + '</div>' +
+    '<div class="result-score">' + state.score + ' <span style="font-size:20px;color:#6b5b4a;">/ ' + getAnsweredCountInDifficulty() + '</span></div>' +
+    '<div class="result-detail">正确率 <strong>' + pct + '%</strong></div>' +
+    '<div class="result-advice">' + rank.desc + '<br><br>当前难度：' + DIFF_LABELS[state.difficulty] + ' · 题库共 ' + total + ' 题</div>' +
+    '<div class="result-actions">' +
+    '<button class="replay-btn" onclick="resetCurrentProgress()">🔄 清空重来</button>' +
+    '<button style="background:none;border:1px solid #4a9c5d;color:#4a9c5d;padding:14px 28px;border-radius:6px;font-family:inherit;font-size:14px;cursor:pointer;" onclick="selectDifficulty(\'' + otherDiff1 + '\')">切换到 ' + DIFF_LABELS[otherDiff1] + '</button>' +
+    '<button style="background:none;border:1px solid #8B1A1A;color:#8B1A1A;padding:14px 28px;border-radius:6px;font-family:inherit;font-size:14px;cursor:pointer;" onclick="selectDifficulty(\'' + otherDiff2 + '\')">切换到 ' + DIFF_LABELS[otherDiff2] + '</button>' +
+    '</div></div>';
+
+  renderGrid();
+}
+
+// ==================== 键盘操作 ====================
+document.addEventListener('keydown', function(e) {
+  if (state.phase === 'modeSelect') {
+    if (e.key === '1') onVersionClick('novel');
+    if (e.key === '2') onVersionClick('history');
+    return;
+  }
+  if (document.getElementById('diffOverlay').classList.contains('show')) {
+    if (e.key === '1') selectDifficulty('beginner');
+    if (e.key === '2') selectDifficulty('intermediate');
+    if (e.key === '3') selectDifficulty('hell');
+    if (e.key === 'Escape') closeDiffModal();
+    return;
+  }
+  if (state.phase !== 'playing') return;
+
+  if (!state.answered) {
+    var keys = { '1': 0, '2': 1, '3': 2, '4': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+    if (e.key.toLowerCase() in keys) selectAnswer(keys[e.key.toLowerCase()]);
+    if (e.key === 'Enter') confirmAnswer();
+  } else {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') nextQuestion();
+  }
+  if (e.key === 'Escape') goToModeSelect();
+});
+
+// ==================== 初始化 ====================
+// 重置所有旧格式数据（迁移到 v2 key）
+try { localStorage.removeItem('sanguo_progress'); } catch(e) {}
+
+var privacy = loadPrivacy();
+if (privacy === null) {
+  // 首次访问，弹出隐私选择
+  state.keepData = null;
+  document.getElementById('privacyOverlay').classList.add('show');
+  // 先不加载旧数据，等用户选择后再决定
+} else {
+  state.keepData = privacy;
+  updatePrivacyBadge();
+  if (privacy) { loadProgress(); }
+}
+renderModeSelect();
+</script>
+</body>
+</html>
