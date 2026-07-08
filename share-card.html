@@ -11,58 +11,45 @@
     min-height: 100vh; font-family: 'STSong','Songti SC','Noto Serif SC','KaiTi',serif;
   }
   .card {
-    width: 600px; background: linear-gradient(180deg, #1a0a0a 0%, #2c1810 100%);
-    border: 3px solid #C9A84C; border-radius: 20px; padding: 48px 40px;
+    width: 560px; background: linear-gradient(180deg, #1a0a0a 0%, #2c1810 100%);
+    border: 3px solid #C9A84C; border-radius: 20px; padding: 36px 40px 30px;
     text-align: center; position: relative; overflow: hidden;
   }
   .card::before {
-    content: ''; position: absolute; top: -60px; right: -60px;
-    width: 200px; height: 200px; border: 1px solid rgba(201,168,76,0.15); border-radius: 50%;
+    content: ''; position: absolute; top: -50px; right: -50px;
+    width: 160px; height: 160px; border: 1px solid rgba(201,168,76,0.12); border-radius: 50%;
   }
   .card::after {
-    content: ''; position: absolute; bottom: -40px; left: -40px;
-    width: 150px; height: 150px; border: 1px solid rgba(201,168,76,0.1); border-radius: 50%;
+    content: ''; position: absolute; bottom: -30px; left: -30px;
+    width: 100px; height: 100px; border: 1px solid rgba(201,168,76,0.08); border-radius: 50%;
   }
-  .logo { font-size: 56px; margin-bottom: 8px; position: relative; z-index: 1; }
+  .logo { font-size: 48px; margin-bottom: 4px; position: relative; z-index: 1; }
   .title {
-    font-size: 38px; color: #C9A84C; letter-spacing: 8px; font-weight: bold;
-    margin-bottom: 6px; position: relative; z-index: 1;
+    font-size: 34px; color: #C9A84C; letter-spacing: 8px; font-weight: bold;
+    margin-bottom: 2px; position: relative; z-index: 1;
   }
   .subtitle {
-    font-size: 16px; color: #8b7355; letter-spacing: 4px; margin-bottom: 28px;
+    font-size: 13px; color: #8b7355; letter-spacing: 4px; margin-bottom: 18px;
     position: relative; z-index: 1;
-  }
-  .divider {
-    width: 120px; height: 1px; background: linear-gradient(90deg, transparent, #C9A84C, transparent);
-    margin: 0 auto 24px; position: relative; z-index: 1;
   }
   .features {
-    display: flex; justify-content: center; gap: 28px; margin-bottom: 32px;
-    position: relative; z-index: 1; flex-wrap: wrap;
-  }
-  .feat {
-    text-align: center;
-  }
-  .feat-icon { font-size: 32px; margin-bottom: 4px; }
-  .feat-text { font-size: 12px; color: #8b7355; letter-spacing: 1px; }
-  .url-box {
-    display: inline-block; padding: 16px 28px;
-    background: rgba(201,168,76,0.1); border: 1px solid #C9A84C;
-    border-radius: 10px; position: relative; z-index: 1;
-  }
-  .url-text {
-    font-size: 15px; color: #E8B44F; letter-spacing: 1px;
-    word-break: break-all; font-family: 'Consolas','Menlo',monospace;
-  }
-  .hint {
-    font-size: 12px; color: #6b5b4a; margin-top: 14px; letter-spacing: 2px;
+    display: flex; justify-content: center; gap: 28px; margin-bottom: 22px;
     position: relative; z-index: 1;
   }
-  .qrcode-placeholder {
-    width: 100px; height: 100px; margin: 20px auto 0; border: 1px dashed rgba(201,168,76,0.3);
-    border-radius: 8px; display: flex; align-items: center; justify-content: center;
-    font-size: 11px; color: #6b5b4a; letter-spacing: 1px; position: relative; z-index: 1;
+  .feat { text-align: center; }
+  .feat-icon { font-size: 26px; margin-bottom: 2px; }
+  .feat-text { font-size: 10px; color: #8b7355; letter-spacing: 1px; }
+
+  .qr-wrap {
+    display: inline-block; background: #fff; padding: 10px; border-radius: 12px;
+    margin-bottom: 8px; position: relative; z-index: 1;
   }
+  .qr-wrap img { display: block; width: 140px; height: 140px; }
+  .hint {
+    font-size: 12px; color: #8b7355; letter-spacing: 2px;
+    position: relative; z-index: 1;
+  }
+  .hint strong { color: #E8B44F; }
 </style>
 </head>
 <body>
@@ -72,19 +59,17 @@
   <div class="title">三国冷知识</div>
   <div class="subtitle">军 师 挑 战</div>
 
-  <div class="divider"></div>
-
   <div class="features">
-    <div class="feat"><div class="feat-icon">⚔️</div><div class="feat-text">演义版</div></div>
-    <div class="feat"><div class="feat-icon">🏛️</div><div class="feat-text">正史版</div></div>
+    <div class="feat"><div class="feat-icon">⚔️</div><div class="feat-text">演义</div></div>
+    <div class="feat"><div class="feat-icon">🏛️</div><div class="feat-text">正史</div></div>
     <div class="feat"><div class="feat-icon">📋</div><div class="feat-text">300题</div></div>
-    <div class="feat"><div class="feat-icon">👨‍👦</div><div class="feat-text">亲子对战</div></div>
+    <div class="feat"><div class="feat-icon">👨‍👦</div><div class="feat-text">亲子</div></div>
   </div>
 
-  <div class="url-box">
-    <div class="url-text">youjianxiaomujaing.github.io/sanguo</div>
+  <div class="qr-wrap">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://youjianxiaomujaing.github.io/sanguo/" alt="扫码打开游戏" crossorigin="anonymous">
   </div>
-  <div class="hint">长按复制链接 · 微信打开即玩</div>
+  <div class="hint">📱 微信扫码即玩 · <strong>无需下载</strong></div>
 </div>
 
 </body>
